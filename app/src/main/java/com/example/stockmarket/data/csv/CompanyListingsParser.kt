@@ -28,8 +28,9 @@ class CompanyListingsParser @Inject constructor() : CsvParser<CompanyListing> {
                         exchange = exchange ?: return@mapNotNull null
                     )
                 }
-        }.also {
-            csvReader.close()
+                .also {
+                    csvReader.close()
+                }
         }
     }
 }

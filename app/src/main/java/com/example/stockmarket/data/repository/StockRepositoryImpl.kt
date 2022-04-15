@@ -1,11 +1,15 @@
 package com.example.stockmarket.data.repository
 
 import com.example.stockmarket.data.csv.CsvParser
+import com.example.stockmarket.data.csv.IntradayInfoParser
 import com.example.stockmarket.data.local.StockDatabase
+import com.example.stockmarket.data.mapper.toCompanyInfo
 import com.example.stockmarket.data.mapper.toCompanyListing
 import com.example.stockmarket.data.mapper.toCompanyListingEntity
 import com.example.stockmarket.data.remote.StockApi
+import com.example.stockmarket.domain.model.CompanyInfo
 import com.example.stockmarket.domain.model.CompanyListing
+import com.example.stockmarket.domain.model.IntradayInfo
 import com.example.stockmarket.domain.repository.StockRepository
 import com.example.stockmarket.util.Resource
 import com.opencsv.CSVReader
@@ -19,8 +23,9 @@ import javax.inject.Singleton
 
 @Singleton
 class StockRepositoryImpl @Inject constructor(
-    val companyListingsParser: CsvParser<CompanyListing>,
-    val api: StockApi,
+    private val companyListingsParser: CsvParser<CompanyListing>,
+    private val api: StockApi,
+    private val intradayInfoParser: CsvParser<IntradayInfo>,
     database: StockDatabase,
 ) : StockRepository {
 
@@ -66,6 +71,25 @@ class StockRepositoryImpl @Inject constructor(
             )
             emit(Resource.Loading(false))
         }
+    }
+
+    override suspend fun getIntradayInfo(symbol: String): Resource<List<IntradayInfo>> = try {
+        val response = api.getIntradayInfo(symbol)
+        val results = intradayInfoParser.parse(response.byteStream())
+        Resource.Success(results)
+    } catch (e: IOException) {
+        Resource.Error("Couldn't load data")
+    } catch (e: HttpException) {
+        Resource.Error("Couldn't load data")
+    }
+
+    override suspend fun getCompanyInfo(symbol: String): Resource<CompanyInfo> = try {
+        val result = api.getCompanyInfo(symbol)
+        Resource.Success(result.toCompanyInfo())
+    } catch (e: IOException) {
+        Resource.Error("Couldn't load data")
+    } catch (e: HttpException) {
+        Resource.Error("Couldn't load data")
     }
 
 }

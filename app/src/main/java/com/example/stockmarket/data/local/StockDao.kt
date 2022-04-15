@@ -10,7 +10,7 @@ interface StockDao {
         companyListingEntities: List<CompanyListingEntity>,
     )
 
-    @Delete //@QUERY("DELETE FROM companylistingentity")
+    @Query("DELETE FROM companylistingentity")
     suspend fun clearCompanyListings()
 
     @Query(

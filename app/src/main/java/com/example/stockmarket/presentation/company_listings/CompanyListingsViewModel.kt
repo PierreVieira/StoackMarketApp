@@ -18,9 +18,13 @@ class CompanyListingsViewModel @Inject constructor(
     private val repository: StockRepository,
 ) : ViewModel() {
 
-   var state by mutableStateOf(CompanyListingsState())
+    var state by mutableStateOf(CompanyListingsState())
 
     private var searchJob: Job? = null
+
+    init {
+        getCompanyListings()
+    }
 
     fun onEvent(event: CompanyListingsEvent) {
         when (event) {
@@ -40,25 +44,23 @@ class CompanyListingsViewModel @Inject constructor(
         query: String = state.searchQuery.lowercase(),
         fetchFromRemote: Boolean = false,
     ) = viewModelScope.launch {
-        repository
-            .getCompanyListings(
-                fetchFromRemote = fetchFromRemote,
-                query = query
-            )
-            .collect { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        result.data?.let { listings ->
-                            state = state.copy(
-                                companies = listings
-                            )
-                        }
-                    }
-                    is Resource.Error -> Unit
-                    is Resource.Loading -> {
-                        state = state.copy(isLoading = result.isLoading)
+        repository.getCompanyListings(
+            fetchFromRemote = fetchFromRemote,
+            query = query
+        ).collect { result ->
+            when (result) {
+                is Resource.Success -> {
+                    result.data?.let { listings ->
+                        state = state.copy(
+                            companies = listings
+                        )
                     }
                 }
+                is Resource.Error -> Unit
+                is Resource.Loading -> {
+                    state = state.copy(isLoading = result.isLoading)
+                }
             }
+        }
     }
 }
