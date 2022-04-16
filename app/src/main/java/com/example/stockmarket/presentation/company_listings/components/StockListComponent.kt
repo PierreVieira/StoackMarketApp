@@ -9,6 +9,7 @@ import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.example.stockmarket.domain.model.CompanyInfo
 import com.example.stockmarket.domain.model.CompanyListing
 import com.google.accompanist.swiperefresh.SwipeRefresh
 import com.google.accompanist.swiperefresh.rememberSwipeRefreshState
@@ -18,6 +19,7 @@ fun StockList(
     isRefreshing: Boolean,
     companies: List<CompanyListing>,
     onRefresh: () -> Unit,
+    onItemClick: (String) -> Unit,
 ) = SwipeRefresh(
     state = rememberSwipeRefreshState(
         isRefreshing = isRefreshing
@@ -26,13 +28,12 @@ fun StockList(
 ) {
     LazyColumn(modifier = Modifier.fillMaxSize()) {
         items(companies.size) { index ->
+            val company = companies[index]
             CompanyItemComponent(
-                company = companies[index],
+                company = company,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        // TODO: Navigate to details screen
-                    }
+                    .clickable { onItemClick(company.symbol) }
                     .padding(16.dp)
             )
             if (index < companies.size) {

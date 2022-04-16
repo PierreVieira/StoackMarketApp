@@ -12,6 +12,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.stockmarket.presentation.company_listings.components.SearchBoxComponent
 import com.example.stockmarket.presentation.company_listings.components.StockList
+import com.example.stockmarket.presentation.destinations.CompanyInfoScreenDestination
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
@@ -43,6 +44,9 @@ fun CompanyListingsScreen(
                 companies = state.companies,
                 onRefresh = {
                     viewModel.onEvent(CompanyListingsEvent.Refresh)
+                },
+                onItemClick = { symbol ->
+                    navigator.navigate(CompanyInfoScreenDestination(symbol))
                 }
             )
         }
